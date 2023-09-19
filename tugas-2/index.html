@@ -13,37 +13,46 @@
       <div class="subtitle"><h3>Pyramid</h3></div>
       <div class="description"><p>Vito Febrian Ananta - 5025211224</p></div>
     </div>
+    <div class="controls">
+      <button id="startButton">Start Animation</button>
+      <button id="stopButton">Stop Animation</button>
+    </div>
 
-     <!-- Vertex Shader -->
+    <!-- Vertex Shader -->
     <script id="vertex-shader" type="x-shader/x-vertex">
-        precision mediump float;
+      precision mediump float;
 
-        attribute vec3 vertPosition;
-        attribute vec2 vertTexCoord;
-        varying vec2 fragTexCoord;
-        uniform mat4 mWorld;
-        uniform mat4 mView;
-        uniform mat4 mProj;
+      attribute vec3 vertPosition;
+      attribute vec2 vertTexCoord;
+      varying vec2 fragTexCoord;
+      uniform mat4 mWorld;
+      uniform mat4 mView;
+      uniform mat4 mProj;
 
-        void main() {
-            fragTexCoord = vertTexCoord;
-            gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
-        }
+      void main() {
+          fragTexCoord = vertTexCoord;
+          gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
+      }
     </script>
 
     <!-- Fragment Shader -->
     <script id="fragment-shader" type="x-shader/x-fragment">
-        precision mediump float;
+      precision mediump float;
 
-        varying vec2 fragTexCoord;
-        uniform sampler2D sampler;
+      varying vec2 fragTexCoord;
+      uniform sampler2D sampler;
 
-        void main() {
-            gl_FragColor = texture2D(sampler, fragTexCoord);
-        }
+      void main() {
+          gl_FragColor = texture2D(sampler, fragTexCoord);
+      }
     </script>
 
-    <img id="texture" src="./assets/img/pyramid-texture.jpg" width="0" height="0" />
+    <img
+      id="texture"
+      src="./assets/img/pyramid-texture.jpg"
+      width="0"
+      height="0"
+    />
     <script src="./lib/js/gl-matrix.js"></script>
     <script src="index.js"></script>
   </body>

@@ -34,27 +34,27 @@ var init = function () {
     //
     var pyramidVertices =
         [ //    X,      Y,      Z               U,      V
-                //  Base
-                -1.0,   -1.0,   -1.0,           0,      0,
-                1.0,    -1.0,   -1.0,           1,      0,
-                1.0,    -1.0,   1.0,            1,      1,
-                -1.0,   -1.0,   1.0,            0,      1,
+            //  Base
+            -1.0, -1.0, -1.0, 0, 0,
+            1.0, -1.0, -1.0, 1, 0,
+            1.0, -1.0, 1.0, 1, 1,
+            -1.0, -1.0, 1.0, 0, 1,
 
-                // Front
-                0.0,    1.0,    0.0,            0.5,    0.5,
+            // Front
+            0.0, 1.0, 0.0, 0.5, 0.5,
         ];
 
     var pyramidIndices =
         [
-                // Base
-                0,      1,      2,
-                0,      2,      3,
+            // Base
+            0, 1, 2,
+            0, 2, 3,
 
-                // Front
-                0,      4,      1,
-                1,      4,      2,
-                2,      4,      3,
-                3,      4,      0,
+            // Front
+            0, 4, 1,
+            1, 4, 2,
+            2, 4, 3,
+            3, 4, 0,
         ];
 
     var pyramidVertexBufferObject = gl.createBuffer();
@@ -128,22 +128,73 @@ var init = function () {
     var identityMatrix = new Float32Array(16);
     mat4.identity(identityMatrix);
     var angle = 0;
-    var loop = function () {
-        angle = performance.now() / 1000 / 6 * 3 * Math.PI;
-        mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
-        mat4.rotate(xRotationMatrix, identityMatrix, angle / 3, [1, 0, 0]);
-        mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
-        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+    // var animationRequestId; // Store the requestAnimationFrame ID
 
-        gl.clearColor(0, 0, 0, 1);
-        gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+    let animationRunning = false;
+    let animationRequestId;
+    if (animationRunning == false) {
+        document.getElementById("stopButton").disabled = true;
+    }
 
-        gl.bindTexture(gl.TEXTURE_2D, pyramidTexture);
-        gl.activeTexture(gl.TEXTURE0);
+    // Function to start the animation
+    function startAnimation() {
+        if (!animationRunning) {
+            animationRunning = true;
+            document.getElementById("startButton").disabled = true;
+            document.getElementById("stopButton").disabled = false;
 
-        gl.drawElements(gl.TRIANGLES, pyramidIndices.length, gl.UNSIGNED_SHORT, 0);
+            function animate(currentTime) {
+                // Calculate the delta time (time since the last frame)
+                const deltaTime = (currentTime - previousTime) / 2100; // Convert to seconds
+                previousTime = currentTime;
 
-        requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
+                // Update the angle based on delta time
+                angle += deltaTime * Math.PI; // Adjust the speed as needed
+
+                mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
+                mat4.rotate(xRotationMatrix, identityMatrix, angle / 3, [1, 0, 0]);
+                mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
+                gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+
+                gl.clearColor(0, 0, 0, 1);
+                gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+
+                gl.bindTexture(gl.TEXTURE_2D, pyramidTexture);
+                gl.activeTexture(gl.TEXTURE0);
+
+                gl.drawElements(gl.TRIANGLES, pyramidIndices.length, gl.UNSIGNED_SHORT, 0);
+
+                if (animationRunning) {
+                    animationRequestId = requestAnimationFrame(animate);
+                }
+            }
+        }
+
+        // Start the animation loop
+        var previousTime = performance.now();
+        animate(previousTime);
+    }
+
+    // Function to stop the animation
+    function stopAnimation() {
+        if (animationRunning) {
+            animationRunning = false;
+            document.getElementById("startButton").disabled = false;
+            document.getElementById("stopButton").disabled = true;
+            cancelAnimationFrame(animationRequestId);
+        }
+    }
+
+    // Bind the functions to the buttons' click events
+    document.getElementById('startButton').addEventListener('click', startAnimation);
+    document.getElementById('stopButton').addEventListener('click', stopAnimation);
+
+    // Add keyboard event listeners
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "a" || event.key === "A") {
+            startAnimation();
+        } else if (event.key === "d" || event.key === "D") {
+            stopAnimation();
+        }
+    });
 };
