@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tugas 2 - Pyramid - Vito Ananta</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body onload="init();">
+    <div class="center">
+      <div class="title"><h1>Tugas 2</h1></div>
+      <canvas id="canvas" width="480" height="480"></canvas>
+      <div class="subtitle"><h3>Pyramid</h3></div>
+      <div class="description"><p>Vito Febrian Ananta - 5025211224</p></div>
+    </div>
+
+     <!-- Vertex Shader -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        precision mediump float;
+
+        attribute vec3 vertPosition;
+        attribute vec2 vertTexCoord;
+        varying vec2 fragTexCoord;
+        uniform mat4 mWorld;
+        uniform mat4 mView;
+        uniform mat4 mProj;
+
+        void main() {
+            fragTexCoord = vertTexCoord;
+            gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
+        }
+    </script>
+
+    <!-- Fragment Shader -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        precision mediump float;
+
+        varying vec2 fragTexCoord;
+        uniform sampler2D sampler;
+
+        void main() {
+            gl_FragColor = texture2D(sampler, fragTexCoord);
+        }
+    </script>
+
+    <img id="texture" src="./assets/img/pyramid-texture.jpg" width="0" height="0" />
+    <script src="./lib/js/gl-matrix.js"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
