@@ -154,6 +154,7 @@ var init = function () {
                 mat4.rotate(yRotationMatrix, identityMatrix, angle, [0, 1, 0]);
                 mat4.rotate(xRotationMatrix, identityMatrix, angle / 3, [1, 0, 0]);
                 mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
+                mat4.scale(worldMatrix, worldMatrix, [scaleFactor, scaleFactor, scaleFactor]);
                 gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 
                 gl.clearColor(0, 0, 0, 1);
@@ -196,5 +197,33 @@ var init = function () {
         } else if (event.key === "d" || event.key === "D") {
             stopAnimation();
         }
+    });
+
+    // Get references to the scale slider and its value display span
+    var scaleSlider = document.getElementById('scaleSlider');
+    var scaleValue = document.getElementById('scaleValue');
+    var scaleFactor = 1.0;
+
+    var scaleMatrix = new Float32Array(16);
+    mat4.identity(scaleMatrix);
+
+
+    // Function to update the scale when the slider value changes
+    scaleSlider.addEventListener('input', function () {
+        scaleFactor = parseFloat(scaleSlider.value);
+        scaleValue.textContent = scaleFactor.toFixed(1);
+
+        // Update the scale matrix
+        mat4.identity(scaleMatrix);
+        mat4.scale(scaleMatrix, scaleMatrix, [scaleFactor, scaleFactor, scaleFactor]);
+
+        // Redraw the object
+        gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+        mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
+
+        // Apply both the scale and rotation transformations
+        mat4.mul(worldMatrix, scaleMatrix, worldMatrix);
+        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+        gl.drawElements(gl.TRIANGLES, pyramidIndices.length, gl.UNSIGNED_SHORT, 0);
     });
 };
