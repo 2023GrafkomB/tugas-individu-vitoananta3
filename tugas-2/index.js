@@ -169,11 +169,12 @@ var init = function () {
                     animationRequestId = requestAnimationFrame(animate);
                 }
             }
+
+            // Start the animation loop
+            var previousTime = performance.now();
+            animate(previousTime);
         }
 
-        // Start the animation loop
-        var previousTime = performance.now();
-        animate(previousTime);
     }
 
     // Function to stop the animation
