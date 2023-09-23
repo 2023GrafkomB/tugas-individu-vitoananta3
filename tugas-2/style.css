@@ -1,5 +1,7 @@
 * {
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
 
 .center {
@@ -9,10 +11,64 @@
     flex-direction: column;
 }
 
+.title {
+    padding: 1rem;
+}
+
+.subtitle {
+    padding: 0.5rem;
+}
+
+.description {
+    padding: 0 0 0.5rem 0;
+}
+
+.horizontal-spacer {
+    margin: 1rem 0;
+}
+
 .controls {
     display: flex;
     justify-content: center;
-    align-items: center;
     flex-direction: row;
-    gap: 2rem;
+    }
+
+#translator {
+    border-left: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    padding: 0 1rem;
+}
+
+.translate-slider {
+    display: flex;
+    padding-top: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#scaler {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    padding: 0 1rem;
+}
+
+.scaler-slider {
+    display: flex;
+    padding-top: 1rem;
+    gap: 1rem;
+}
+
+.animation-control {
+    border-right: 1px solid black;
+    padding: 0 1rem;
+}
+
+.animation-button {
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
