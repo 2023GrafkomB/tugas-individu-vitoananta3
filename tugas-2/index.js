@@ -165,6 +165,8 @@ var init = function () {
 
                 gl.drawElements(gl.TRIANGLES, pyramidIndices.length, gl.UNSIGNED_SHORT, 0);
 
+                updateTranslation();
+
                 if (animationRunning) {
                     animationRequestId = requestAnimationFrame(animate);
                 }
@@ -226,5 +228,43 @@ var init = function () {
         mat4.mul(worldMatrix, scaleMatrix, worldMatrix);
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
         gl.drawElements(gl.TRIANGLES, pyramidIndices.length, gl.UNSIGNED_SHORT, 0);
+
+        updateTranslation();
     });
+
+    var translationX = 0.0;
+
+    var translationMatrix = new Float32Array(16);
+    mat4.identity(translationMatrix);
+
+    // Function to update the translation when the slider value changes
+    function updateTranslation() {
+        // Update the translation matrix
+        mat4.identity(translationMatrix);
+        mat4.translate(translationMatrix, translationMatrix, [translationX, 0, 0]);
+
+        // Redraw the object
+        gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+        mat4.mul(worldMatrix, yRotationMatrix, xRotationMatrix);
+
+        // Apply both the translation and previous transformations
+        mat4.mul(worldMatrix, translationMatrix, worldMatrix);
+        mat4.mul(worldMatrix, scaleMatrix, worldMatrix);
+        gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+        gl.drawElements(gl.TRIANGLES, pyramidIndices.length, gl.UNSIGNED_SHORT, 0);
+    }
+
+    // Get references to the translation slider and its value display span
+    var translationXSlider = document.getElementById('translationXSlider');
+    var translationXValue = document.getElementById('translationXValue');
+
+    // Function to update the translationX variable and call updateTranslation
+    function onTranslationXChange() {
+        translationX = parseFloat(translationXSlider.value);
+        translationXValue.textContent = translationX.toFixed(1);
+        updateTranslation();
+    }
+
+    // Update the translation when the slider value changes
+    translationXSlider.addEventListener('input', onTranslationXChange);
 };
