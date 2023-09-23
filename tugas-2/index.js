@@ -233,6 +233,8 @@ var init = function () {
     });
 
     var translationX = 0.0;
+    var translationY = 0.0;
+    var translationZ = 0.0;
 
     var translationMatrix = new Float32Array(16);
     mat4.identity(translationMatrix);
@@ -241,7 +243,7 @@ var init = function () {
     function updateTranslation() {
         // Update the translation matrix
         mat4.identity(translationMatrix);
-        mat4.translate(translationMatrix, translationMatrix, [translationX, 0, 0]);
+        mat4.translate(translationMatrix, translationMatrix, [translationX, translationY, translationZ]);
 
         // Redraw the object
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
@@ -257,6 +259,10 @@ var init = function () {
     // Get references to the translation slider and its value display span
     var translationXSlider = document.getElementById('translationXSlider');
     var translationXValue = document.getElementById('translationXValue');
+    var translationYSlider = document.getElementById('translationYSlider');
+    var translationYValue = document.getElementById('translationYValue');
+    var translationZSlider = document.getElementById('translationZSlider');
+    var translationZValue = document.getElementById('translationZValue');
 
     // Function to update the translationX variable and call updateTranslation
     function onTranslationXChange() {
@@ -265,6 +271,22 @@ var init = function () {
         updateTranslation();
     }
 
+    // Function to update the translationY variable and call updateTranslation
+    function onTranslationYChange() {
+        translationY = parseFloat(translationYSlider.value);
+        translationYValue.textContent = translationY.toFixed(1);
+        updateTranslation();
+    }
+
+    // Function to update the translationZ variable and call updateTranslation
+    function onTranslationZChange() {
+        translationZ = parseFloat(translationZSlider.value);
+        translationZValue.textContent = translationZ.toFixed(1);
+        updateTranslation();
+    }
+
     // Update the translation when the slider value changes
     translationXSlider.addEventListener('input', onTranslationXChange);
+    translationYSlider.addEventListener('input', onTranslationYChange);
+    translationZSlider.addEventListener('input', onTranslationZChange);
 };
