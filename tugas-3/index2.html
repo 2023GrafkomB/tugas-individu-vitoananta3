@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style2.css" />
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script id="object-vertex-shader" type="x-shader/x-vertex">
+      attribute vec4 a_position;
+      attribute vec3 a_normal;
+      attribute vec2 a_texcoord;
+      attribute vec4 a_color;
+
+      uniform mat4 u_projection;
+      uniform mat4 u_view;
+      uniform mat4 u_world;
+      uniform vec3 u_viewWorldPosition;
+
+      varying vec3 v_normal;
+      varying vec3 v_surfaceToView;
+      varying vec2 v_texcoord;
+      varying vec4 v_color;
+
+      void main() {
+          vec4 worldPosition = u_world * a_position;
+          gl_Position = u_projection * u_view * worldPosition;
+          v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
+          v_normal = mat3(u_world) * a_normal;
+          v_texcoord = a_texcoord;
+          v_color = a_color;
+      }
+    </script>
+    <script id="object-fragment-shader" type="x-shader/x-fragment">
+      precision highp float;
+
+      varying vec3 v_normal;
+      varying vec3 v_surfaceToView;
+      varying vec2 v_texcoord;
+      varying vec4 v_color;
+
+      uniform vec3 diffuse;
+      uniform sampler2D diffuseMap;
+      uniform vec3 ambient;
+      uniform vec3 emissive;
+      uniform vec3 specular;
+      uniform float shininess;
+      uniform float opacity;
+      uniform vec3 u_lightDirection;
+      uniform vec3 u_ambientLight;
+
+      uniform bool u_enableFog;
+      uniform float u_fogNear;
+      uniform float u_fogFar;
+      uniform vec3 u_fogColor;
+      uniform float u_fogAmount;
+
+      void main () {
+        vec3 normal = normalize(v_normal);
+
+        vec3 surfaceToViewDirection = normalize(v_surfaceToView);
+        vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
+
+        float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
+        float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
+
+        vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
+        vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * v_color.rgb;
+        float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
+
+        // Calculate the distance between the fragment and the camera
+        float distance = length(v_surfaceToView);
+
+        // Calculate the fog factor based on the distance
+        float fogFactor = smoothstep(u_fogNear, u_fogFar, distance) * u_fogAmount;
+
+        // Blend the fog color with the final color
+        vec3 finalColor = mix(effectiveDiffuse, u_fogColor, fogFactor);
+
+        gl_FragColor = vec4(
+            emissive +
+            ambient * u_ambientLight +
+            finalColor * fakeLight +
+            specular * pow(specularLight, shininess),
+            effectiveOpacity);
+      }
+    </script>
+    <script id="skybox-vertex-shader" type="x-shader/x-vertex">
+      attribute vec4 a_position;
+      varying vec4 v_position;
+      void main() {
+        v_position = a_position;
+        gl_Position = vec4(a_position.xy, 1, 1);
+      }
+    </script>
+    <script id="skybox-fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+
+      uniform samplerCube u_skybox;
+      uniform mat4 u_viewDirectionProjectionInverse;
+
+      varying vec4 v_position;
+      void main() {
+        vec4 t = u_viewDirectionProjectionInverse * v_position;
+        gl_FragColor = textureCube(u_skybox, normalize(t.xyz / t.w));
+      }
+    </script>
+    <script id="plane-vertex-shader" type="x-shader/x-vertex">
+      attribute vec4 a_position;
+      attribute vec2 a_texcoord;
+
+      uniform mat4 u_world;
+      uniform mat4 u_view;
+      uniform mat4 u_projection;
+
+      varying vec2 v_texcoord;
+
+      void main() {
+          // Combine the transformation matrices
+          mat4 modelViewProjection = u_projection * u_view * u_world;
+
+          // Calculate the final position of the vertex
+          gl_Position = modelViewProjection * a_position;
+
+          // Pass the texture coordinate to the fragment shader
+          v_texcoord = a_texcoord;
+      }
+    </script>
+    <script id="plane-fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+
+      uniform vec4 u_colorMult; // Color multiplier
+      uniform sampler2D u_texture; // Texture sampler
+
+      varying vec2 v_texcoord;
+
+      void main() {
+          // Sample the texture using the texture coordinate
+          vec4 textureColor = texture2D(u_texture, v_texcoord);
+
+          // Multiply the texture color with the color multiplier
+          vec4 finalColor = textureColor * u_colorMult;
+
+          gl_FragColor = finalColor;
+      }
+    </script>
+
+    <div class="control">
+      <!-- Add fogNear slider -->
+      <label for="fogNearSlider">Fog Near:</label>
+      <input
+        type="range"
+        id="fogNearSlider"
+        min="0"
+        max="100"
+        step="1"
+        value="1"
+      />
+      <span id="fogNearValue">1</span>
+
+      <!-- Add fogFar slider -->
+      <label for="fogFarSlider">Fog Far:</label>
+      <input
+        type="range"
+        id="fogFarSlider"
+        min="0"
+        max="100"
+        step="1"
+        value="5"
+      />
+      <span id="fogFarValue">5</span>
+
+      <!-- Add fogAmount slider -->
+      <label for="fogAmountSlider">Fog Amount:</label>
+      <input
+        type="range"
+        id="fogAmountSlider"
+        min="0"
+        max="1"
+        step="0.01"
+        value="1.00"
+      />
+      <span id="fogAmountValue">1</span>
+    </div>
+
+    <!--
+for most samples webgl-utils only provides shader compiling/linking and
+canvas resizing because why clutter the examples with code that's the same in every sample.
+See https://webglfundamentals.org/webgl/lessons/webgl-boilerplate.html
+and https://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
+for webgl-utils, m3, m4, and webgl-lessons-ui.
+-->
+
+    <script src="https://webglfundamentals.org/webgl/resources/webgl-utils.js"></script>
+    <script src="https://webglfundamentals.org/webgl/resources/m4.js"></script>
+    <script src="https://webglfundamentals.org/webgl/resources/primitives.js"></script>
+    <script src="index2.js"></script>
+  </body>
+</html>
