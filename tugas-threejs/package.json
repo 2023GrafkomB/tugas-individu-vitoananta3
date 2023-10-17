@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "dat.gui": "^0.7.9",
+    "three": "^0.157.0"
+  },
+  "devDependencies": {
+    "vite": "^4.4.9"
+  },
+  "name": "three-js-individu",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "dev": "npx vite "
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
