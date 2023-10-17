@@ -1,6 +1,6 @@
-Nama  : Vito Febrian Ananta
-NRP  : 5025211224
-Kelas  : Grafika Komputer (B) 2023
+- Nama  : Vito Febrian Ananta
+- NRP  : 5025211224
+- Kelas  : Grafika Komputer (B) 2023
 
 Demo (video)
 - Tugas 2
