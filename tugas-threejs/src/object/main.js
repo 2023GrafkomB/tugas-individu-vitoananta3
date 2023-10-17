@@ -172,7 +172,7 @@ dlFolder.add(dlSettings, 'visible').onChange((value) => {
     dlHelper.visible = value;
 });
 dlFolder.add(dl, 'intensity', 0, 1, 0.25);
-dlFolder.add(dl.position, 'y', 1, 4, 0.5);
+dlFolder.add(dl.position, 'y', 1, 200, 0.5);
 dlFolder.add(dl, 'castShadow');
 dlFolder
     .addColor(dlSettings, 'color')
